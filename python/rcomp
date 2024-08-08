@@ -1,0 +1,42 @@
+#!/home/touch/.pyenv/versions/3.8.3/bin/python
+
+import os
+import argparse
+from re import split as sp
+
+parser = argparse.ArgumentParser(prog='Reverse Complement',description='Get the reverese compliment of entries in a fasta file.')
+parser.add_argument('file')
+args = parser.parse_args()
+
+convert = {"T":"A", "A":"T", "C":"G", "G":"C","t":"a", "a":"t", "c":"g", "g":"c"}
+sequences = dict()
+
+print(args.file)
+with open(args.file, "r", encoding="utf-8") as f:
+    lines = f.readlines()
+    name = ""
+    for line in lines:
+        if line.startswith(">"):
+            name = line.strip()
+            sequences[name] = []
+        else:
+            newsequence = ""
+            for i in line.strip():
+                newsequence = newsequence + convert[i]
+            sequences[name].append(newsequence)
+    for i in sequences.keys():
+        fullsequence = ""
+        for j in sequences[i]:
+            fullsequence = fullsequence + j
+        fullsequence = fullsequence[::-1]
+        sequences[i] = fullsequence
+filename = sp(r'\.(?!.*\.)', args.file)
+finalname = ""
+for i in filename[:-1]:
+    finalname = finalname + i
+finalname = finalname + "_reverse_compliment."
+finalname = finalname + filename[-1]
+with open(finalname, "w") as file:
+    for i in sequences.keys():
+        file.write(f"{i}\n")
+        file.write(f"{sequences[i]}\n")
